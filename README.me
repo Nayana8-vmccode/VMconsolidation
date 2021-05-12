@@ -1,0 +1,100 @@
+# VMconsolidation
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package logic;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author balaji
+ */
+public class rcreation {
+        String status="invalid";
+public String check(String name,String rmem,String smem,String speed)
+    {
+
+     try{
+               Connection connec=getConnection();
+		Statement st=(Statement) connec.createStatement();
+                ResultSet rs = st.executeQuery("select * from rdetails where name='"+name+"'");
+			if(rs.next()){
+                                JOptionPane.showMessageDialog(null, "same resource name already exist....");
+				status="valid";
+
+			}
+                  else{
+                    uploaddata(name,rmem,smem,speed);
+                    status="invalid";
+                 }
+     }
+     catch(Exception e)
+     {
+         e.printStackTrace();;
+     }
+     return status;
+ }
+  public void uploaddata(String name,String rmem,String smem,String speed)
+    {
+        try{
+            String cluster="";
+            int count=Integer.parseInt(rmem)+Integer.parseInt(smem)+Integer.parseInt(speed);
+            if(count>=2000)
+            {
+               cluster="Very_High";
+            }
+            else if((count>1000)&&(count<2000))
+            {
+              cluster="High";
+            }
+            else if((count>500)&&(count<1000))
+            {
+             cluster="Medium";
+            }
+            else if(count<500)
+            {
+              cluster="Low";
+            }
+
+                Connection connec=getConnection();
+		Statement st=(Statement) connec.createStatement();
+		st.executeUpdate("insert into rdetails values('"+name+"','"+rmem+"','"+smem+"','"+speed+"','"+cluster+"')");
+                JOptionPane.showMessageDialog(null, "resource created successfully inserted....");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+}
+      public Connection getConnection(){
+		Connection conn=null;
+	try{
+
+
+            Statement stmt = null;
+            String url = "jdbc:mysql://localhost/";
+            String dbName = "VM_consolidation";
+            String driver = "com.mysql.jdbc.Driver";
+            String userName = "root";
+            String password = "root";
+  Class.forName(driver).newInstance();
+  conn = DriverManager.getConnection(url+dbName,userName,password);
+
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return conn;
+	}
+}
+
+
